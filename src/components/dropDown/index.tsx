@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {
@@ -10,6 +11,7 @@ import {
   Animated,
   Modal,
   Easing,
+  Pressable,
 } from 'react-native';
 import styles from './styles';
 import Arrow from '../../assets/arrow.png';
@@ -18,7 +20,6 @@ import Close from '../../assets/close.png';
 interface DropDownPropTypes {
   options: {name: string}[];
   isSearchAble?: boolean;
-  defaultValue: string | undefined;
   searchInputPlaceholder?: string;
   inputStyles?: object;
   itemStyle?: object;
@@ -27,13 +28,16 @@ interface DropDownPropTypes {
   selectedTextColor?: string;
   searchInputPlaceholderColor?: string;
   maxHeight?: number;
+  onSelect: (value: string) => void | undefined;
+  value: string;
+  rowRenderer?: (item: {name: string}, index: number) => React.ReactNode;
 }
 
 const DropDown: React.FC<DropDownPropTypes> = React.memo(
   ({
     options,
     isSearchAble,
-    defaultValue,
+    value,
     searchInputPlaceholder,
     inputStyles,
     itemStyle,
@@ -41,11 +45,10 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
     dropDownStyle,
     searchInputPlaceholderColor,
     maxHeight,
+    onSelect,
+    rowRenderer,
     selectedTextColor,
   }) => {
-    const [selectedItem, setselectedItem] = useState<string | undefined>(
-      defaultValue,
-    );
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
     const [isFocus, setIsFocus] = useState<boolean>(false);
@@ -65,7 +68,7 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
     useEffect(() => {
       const rotateAnimation = Animated.timing(arrowRotation, {
         toValue: isOpen ? 1 : 0,
-        duration: 200,
+        duration: 300,
         useNativeDriver: false,
       });
 
@@ -87,7 +90,7 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
     });
 
     const handleItemClick = useCallback((item: {name: string}) => {
-      setselectedItem(() => item.name);
+      onSelect(item?.name);
       setIsOpen(false);
     }, []);
 
@@ -97,7 +100,6 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
           setModalTopPosition(params[5] - 2 + (!isSearchAble ? params[3] : 0));
         });
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleDropdownPress = () => {
@@ -119,7 +121,7 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
           }}
           onPress={handleDropdownPress}>
           <View style={styles.input}>
-            <Text style={{color: selectedTextColor}}>{selectedItem}</Text>
+            <Text style={{color: selectedTextColor || '#b3b3b3'}}>{value}</Text>
           </View>
           <Animated.View
             style={{
@@ -160,7 +162,7 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
                       placeholderTextColor={searchInputPlaceholderColor}
                       cursorColor={'#444'}
                       value={search}
-                      onChangeText={value => setSearch(value)}
+                      onChangeText={text => setSearch(text)}
                       onFocus={() => setIsFocus(true)}
                       onBlur={() => setIsFocus(false)}
                     />
@@ -182,19 +184,23 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
                   data={ItemList}
                   keyExtractor={(_, index) => index.toString()}
                   showsVerticalScrollIndicator={false}
-                  renderItem={({item, index}) => (
-                    <TouchableOpacity onPress={() => handleItemClick(item)}>
-                      <Text
-                        style={{
-                          ...styles.optionItems,
-                          ...itemStyle,
-                          borderBottomWidth:
-                            index === ItemList.length - 1 ? 0 : 1,
-                        }}>
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+                  renderItem={({item, index}) =>
+                    !rowRenderer ? (
+                      <Pressable onPress={() => handleItemClick(item)}>
+                        <Text
+                          style={{
+                            ...styles.optionItems,
+                            ...itemStyle,
+                            borderBottomWidth:
+                              index === ItemList.length - 1 ? 0 : 1,
+                          }}>
+                          {item.name}
+                        </Text>
+                      </Pressable>
+                    ) : (
+                      rowRenderer({item, index})
+                    )
+                  }
                 />
               </Animated.View>
             </TouchableOpacity>
