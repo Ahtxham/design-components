@@ -1,5 +1,6 @@
+/* eslint-disable prettier/prettier */
 import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Slider from 'react-native-slider';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -26,7 +27,7 @@ const HueSlider: React.FC<HueSliderProps> = ({defaultValue, onChange}) => {
   );
 
   return (
-    <>
+    <View style={styles.container}>
       <Slider
         style={styles.slider}
         value={selectedHue}
@@ -48,13 +49,12 @@ const HueSlider: React.FC<HueSliderProps> = ({defaultValue, onChange}) => {
         start={{x: 0, y: 0.5}}
         end={{x: 1, y: 0.5}}
       />
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
