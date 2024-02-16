@@ -1,6 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useRef, useEffect, useMemo, useCallback} from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+  ReactNode,
+} from 'react';
 import {
   View,
   Text,
@@ -28,9 +35,11 @@ interface DropDownPropTypes {
   selectedTextColor?: string;
   searchInputPlaceholderColor?: string;
   maxHeight?: number;
-  onSelect: (value: string) => void | undefined;
+  onSelect: (val: string) => void | undefined;
   value: string;
   rowRenderer?: (item: {name: string}, index: number) => React.ReactNode;
+  ArrowIcon?: ReactNode | any;
+  CloseIcon?: ReactNode | any;
 }
 
 const DropDown: React.FC<DropDownPropTypes> = React.memo(
@@ -48,11 +57,12 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
     onSelect,
     rowRenderer,
     selectedTextColor,
+    ArrowIcon,
+    CloseIcon,
   }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [search, setSearch] = useState<string>('');
-    const [isFocus, setIsFocus] = useState<boolean>(false);
-    const [modalTopPostion, setModalTopPosition] = useState(0);
+    const [modalTopPostion, setModalTopPosition] = useState<number>(0);
     const modalHeight = useRef(new Animated.Value(0)).current;
     const arrowRotation = useRef(new Animated.Value(0)).current;
     const dropdownRef = useRef<TouchableOpacity | null>(null);
@@ -72,8 +82,12 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
         useNativeDriver: false,
       });
 
+      if (isSearchAble && !searchInputPlaceholder) {
+        console.warn('Search Input Placeholder is required');
+      }
+
       const heightAnimation = Animated.timing(modalHeight, {
-        toValue: isOpen ? maxHeight || 180 : 0,
+        toValue: isOpen ? (maxHeight || !isSearchAble ? 200 : 250) : 0,
         duration: 300,
         useNativeDriver: false,
         easing: isOpen
@@ -127,7 +141,11 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
             style={{
               transform: [{rotate: arrowTransform}],
             }}>
-            <Image source={Arrow} style={styles.arrow} />
+            {ArrowIcon ? (
+              ArrowIcon
+            ) : (
+              <Image source={Arrow} style={styles.arrow} />
+            )}
           </Animated.View>
         </TouchableOpacity>
         {isOpen && (
@@ -151,7 +169,6 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
                   <View
                     style={{
                       ...styles.searchInputContainer,
-                      backgroundColor: isFocus ? '#fff' : '#F5F5F5',
                     }}>
                     <TextInput
                       style={{
@@ -163,12 +180,14 @@ const DropDown: React.FC<DropDownPropTypes> = React.memo(
                       cursorColor={'#444'}
                       value={search}
                       onChangeText={text => setSearch(text)}
-                      onFocus={() => setIsFocus(true)}
-                      onBlur={() => setIsFocus(false)}
                     />
                     {search ? (
                       <TouchableOpacity onPress={() => setSearch('')}>
-                        <Image source={Close} style={styles.closeImage} />
+                        {CloseIcon ? (
+                          CloseIcon
+                        ) : (
+                          <Image source={Close} style={styles.closeImage} />
+                        )}
                       </TouchableOpacity>
                     ) : (
                       <Animated.View

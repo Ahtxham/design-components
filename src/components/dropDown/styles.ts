@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   searchInputContainer: {
+    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -11,6 +11,7 @@ const App: React.FC = () => {
   const handleHueChange = (col: string) => {
     setColor(col);
   };
+
   const options = [
     {name: 'Apple'},
     {name: 'Grapes'},
@@ -20,14 +21,14 @@ const App: React.FC = () => {
     {name: 'Dates'},
   ];
 
-  const handleSelectChange = (value: string) => {
-    setValue(value);
+  const handleSelectChange = (val: string) => {
+    setValue(val);
   };
 
   return (
     <View
-      // eslint-disable-next-line react-native/no-inline-styles
-      style={{
+    // eslint-disable-next-line react-native/no-inline-styles
+    style={{
         alignItems: 'center',
         justifyContent: 'center',
         gap: 30,
@@ -35,7 +36,13 @@ const App: React.FC = () => {
         backgroundColor: color,
       }}>
       <HueSlider onChange={handleHueChange} />
-      <DropDown options={options} value={value} onSelect={handleSelectChange} />
+      <DropDown
+        options={options}
+        value={value}
+        onSelect={handleSelectChange}
+        isSearchAble={true}
+        searchInputPlaceholder="Search Fruits"
+      />
     </View>
   );
 };
